@@ -64,16 +64,54 @@ public class ServidorRestController {
     public ResponseEntity<Servidor> createServidor(@RequestBody Servidor servidor) {
         int id = 1;
         while (servidores.containsKey(id)) id++;
+        // --- Validaciones ---
+        int i;
+        for (i = 0; i < cloudProviders.length; i++) {
+            if (servidor.getCloudProvider().equals(cloudProviders[i])) break;
+        }
+        if (i == cloudProviders.length) return new ResponseEntity<>(servidor, HttpStatusCode.valueOf(422));
+        String ipPattern =  "^([0-9]{1,3}\\.){3}[0-9]{1,3}$";
+        if (servidor.getIpAddress().matches(ipPattern)) {
+            String[] segmentos = servidor.getIpAddress().split("\\.");
+            for (String segmento : segmentos) {
+                int num = Integer.parseInt(segmento);
+                if (num < 0 || num > 255) return new ResponseEntity<>(servidor, HttpStatusCode.valueOf(422)); 
+            }
+        }
+        for (i = 0; i < operatingSystems.length; i++) {
+            if (servidor.getOS().equals(operatingSystems[i])) break;
+        }
+        if (i == cloudProviders.length) return new ResponseEntity<>(servidor, HttpStatusCode.valueOf(422));
+        // --- Validaciones ---
         servidores.put(id, servidor);
         return new ResponseEntity<>(servidor, HttpStatus.CREATED);
     }
 
     @PutMapping(path = "/{id}", headers = {"Accept=application/json"}, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Servidor> updateServidor(@PathVariable int id, @RequestBody Servidor servidor) {
+        // --- Validaciones ---
+        int i;
+        for (i = 0; i < cloudProviders.length; i++) {
+            if (servidor.getCloudProvider().equals(cloudProviders[i])) break;
+        }
+        if (i == cloudProviders.length) return new ResponseEntity<>(servidor, HttpStatusCode.valueOf(422));
+        String ipPattern =  "^([0-9]{1,3}\\.){3}[0-9]{1,3}$";
+        if (servidor.getIpAddress().matches(ipPattern)) {
+            String[] segmentos = servidor.getIpAddress().split("\\.");
+            for (String segmento : segmentos) {
+                int num = Integer.parseInt(segmento);
+                if (num < 0 || num > 255) return new ResponseEntity<>(servidor, HttpStatusCode.valueOf(422)); 
+            }
+        }
+        for (i = 0; i < operatingSystems.length; i++) {
+            if (servidor.getOS().equals(operatingSystems[i])) break;
+        }
+        if (i == cloudProviders.length) return new ResponseEntity<>(servidor, HttpStatusCode.valueOf(422));
         if (servidores.containsKey(id)) {
             servidores.replace(id, servidor);
             return ResponseEntity.ok(servidores.get(id));
         }
+        // --- Validaciones ---
         servidores.put(id, servidor);
         return new ResponseEntity<>(servidores.get(id), HttpStatus.CREATED);
     }
